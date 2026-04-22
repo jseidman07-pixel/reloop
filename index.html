@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reloop — Your Campus Closet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --cream: #f4f0e8;
+      --warm-white: #faf8f4;
+      --accent: #c8a96e;
+      --accent-dark: #9e7d45;
+      --muted: #8a8276;
+      --red: #c0392b;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,169,110,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.3s ease, height 0.3s ease;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 48px;
+      mix-blend-mode: normal;
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.12em;
+      color: var(--cream);
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .nav-cta {
+      background: var(--accent);
+      color: var(--black);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 12px 28px;
+      border: none;
+      cursor: none;
+      transition: background 0.2s ease, transform 0.15s ease;
+      text-decoration: none;
+    }
+    .nav-cta:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 64px 80px 64px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 9vw, 11rem);
+      line-height: 0.92;
+      letter-spacing: 0.04em;
+      color: var(--cream);
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.35s forwards;
+    }
+    .hero-headline em {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero-sub {
+      margin-top: 32px;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 380px;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.5s forwards;
+    }
+
+    .hero-actions {
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.65s forwards;
+    }
+
+    .btn-primary {
+      background: var(--cream);
+      color: var(--black);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 18px 40px;
+      border: none;
+      cursor: none;
+      transition: background 0.2s, transform 0.15s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: var(--accent); transform: translateY(-2px); }
+
+    .btn-ghost {
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(138,130,118,0.4);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--cream); border-color: var(--cream); }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, var(--black) 0%, transparent 30%);
+      z-index: 1;
+    }
+
+    .hero-photo-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 3px;
+      opacity: 0;
+      animation: fadeIn 1.2s ease 0.8s forwards;
+    }
+
+    .photo-cell {
+      background: #1a1a1a;
+      overflow: hidden;
+      position: relative;
+    }
+    .photo-cell:nth-child(1) { grid-row: span 2; }
+    .photo-cell:nth-child(4) { grid-column: span 2; }
+
+    .photo-cell .label {
+      position: absolute;
+      bottom: 12px; left: 12px;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(244,240,232,0.5);
+    }
+
+    /* Fake fashion image placeholders */
+    .photo-cell:nth-child(1) { background: linear-gradient(135deg, #1c1611 0%, #2d2218 50%, #1a130d 100%); }
+    .photo-cell:nth-child(2) { background: linear-gradient(135deg, #0f1318 0%, #1a2030 100%); }
+    .photo-cell:nth-child(3) { background: linear-gradient(135deg, #181211 0%, #2a1e18 100%); }
+    .photo-cell:nth-child(4) { background: linear-gradient(135deg, #111614 0%, #1e2822 100%); }
+
+    .photo-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.15;
+    }
+    .photo-icon svg { width: 48px; height: 48px; fill: var(--cream); }
+
+    /* TICKER */
+    .ticker {
+      background: var(--accent);
+      overflow: hidden;
+      padding: 14px 0;
+      white-space: nowrap;
+    }
+    .ticker-inner {
+      display: inline-flex;
+      gap: 0;
+      animation: ticker 20s linear infinite;
+    }
+    .ticker-item {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: var(--black);
+      padding: 0 48px;
+    }
+    .ticker-dot {
+      color: var(--black);
+      opacity: 0.4;
+    }
+
+    /* HOW IT WORKS */
+    .section { padding: 120px 64px; }
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 5vw, 6rem);
+      line-height: 0.95;
+      letter-spacing: 0.05em;
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 72px;
+    }
+    .how-card {
+      background: #111;
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .how-card:hover { background: #161616; }
+    .how-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      transform-origin: left;
+    }
+    .how-card:hover::after { transform: scaleX(1); }
+
+    .how-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4rem;
+      color: rgba(200,169,110,0.15);
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+    .how-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      color: var(--cream);
+    }
+    .how-desc {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    /* FEATURES */
+    .features-section {
+      padding: 120px 64px;
+      background: var(--warm-white);
+      color: var(--black);
+    }
+    .features-section .section-label { color: var(--accent-dark); }
+    .features-section .section-title { color: var(--black); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      margin-top: 72px;
+    }
+    .feature-card {
+      padding: 56px 48px;
+      background: #f0ece2;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .feature-card:hover { background: #ede8dc; }
+    .feature-card:nth-child(1) { background: var(--black); color: var(--cream); }
+    .feature-card:nth-child(1):hover { background: #111; }
+    .feature-card:nth-child(1) .feature-desc { color: var(--muted); }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 28px;
+    }
+    .feature-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+    .feature-desc {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: #5a5248;
+      font-weight: 300;
+    }
+
+    /* STATS */
+    .stats-section {
+      padding: 100px 64px;
+      border-top: 1px solid #1a1a1a;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .stat-block {
+      padding: 48px;
+      text-align: center;
+      border-right: 1px solid #1a1a1a;
+    }
+    .stat-block:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    /* WAITLIST */
+    .waitlist-section {
+      padding: 140px 64px;
+      background: var(--cream);
+      color: var(--black);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .waitlist-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 6vw, 7rem);
+      line-height: 0.92;
+      letter-spacing: 0.04em;
+    }
+    .waitlist-title em {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      color: var(--accent-dark);
+      display: block;
+    }
+    .waitlist-sub {
+      margin-top: 24px;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: #5a5248;
+      font-weight: 300;
+    }
+
+    .waitlist-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-row { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #8a8276;
+    }
+    .form-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #c5bfb3;
+      padding: 14px 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--black);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--accent-dark); }
+    .form-input::placeholder { color: #b0a898; }
+
+    .form-select {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #c5bfb3;
+      padding: 14px 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--black);
+      outline: none;
+      appearance: none;
+      cursor: none;
+    }
+
+    .btn-submit {
+      margin-top: 16px;
+      background: var(--black);
+      color: var(--cream);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 20px 48px;
+      border: none;
+      cursor: none;
+      align-self: flex-start;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-submit:hover { background: #222; transform: translateY(-2px); }
+
+    .success-msg {
+      display: none;
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--accent-dark);
+      margin-top: 24px;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 48px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #1a1a1a;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.12em;
+      color: var(--cream);
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+    .footer-auburn {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { height: 50vw; }
+      .hero-left { padding: 140px 32px 64px; }
+      .how-grid, .features-grid { grid-template-columns: 1fr; }
+      .stats-section { grid-template-columns: 1fr; }
+      .stat-block { border-right: none; border-bottom: 1px solid #1a1a1a; }
+      .waitlist-section { grid-template-columns: 1fr; }
+      nav { padding: 20px 24px; }
+      .section { padding: 80px 32px; }
+      .features-section, .waitlist-section { padding: 80px 32px; }
+      .footer-logo { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Re<span>loop</span></div>
+    <div class="nav-tag">Your Campus Closet</div>
+    <a href="#waitlist" class="nav-cta">Get Early Access</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Now Launching at Universities Nationwide</p>
+      <h1 class="hero-headline">
+        Every<br>Closet.<br><em>One Place.</em>
+      </h1>
+      <p class="hero-sub">
+        Your campus has dozens of Instagram closet accounts — and you've probably missed half of them. Reloop brings every student seller together in one searchable platform. Find your size, your price, your vibe — for the occasion you actually have.
+      </p>
+      <div class="hero-actions">
+        <a href="#waitlist" class="btn-primary">Join the Waitlist</a>
+        <a href="#how" class="btn-ghost">See How It Works</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-photo-grid">
+        <div class="photo-cell">
+          <div class="photo-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0v10l-8 4-8-4V7m16 0L12 11 4 7"/></svg>
+          </div>
+          <span class="label">Tops & Sets</span>
+        </div>
+        <div class="photo-cell">
+          <div class="photo-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+          </div>
+          <span class="label">Game Day</span>
+        </div>
+        <div class="photo-cell">
+          <div class="photo-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <span class="label">Formals</span>
+        </div>
+        <div class="photo-cell">
+          <div class="photo-icon">
+            <svg viewBox="0 0 24 24"><path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z"/></svg>
+          </div>
+          <span class="label">All Sellers</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span class="ticker-item">Shop by Size</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Filter by Price</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Find by Occasion</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Search by Color</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Rent or Buy</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Auburn Verified</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Shop by Size</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Filter by Price</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Find by Occasion</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Search by Color</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Rent or Buy</span><span class="ticker-dot"> · </span>
+      <span class="ticker-item">Auburn Verified</span><span class="ticker-dot"> · </span>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="reveal">
+      <p class="section-label">The Process</p>
+      <h2 class="section-title">How It<br>Works</h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-card reveal">
+        <div class="how-number">01</div>
+        <h3 class="how-title">Search Everything at Once</h3>
+        <p class="how-desc">Filter across every Auburn closet account by your size, budget, color, or occasion — game day, formal, date night, whatever you need. No more account hopping.</p>
+      </div>
+      <div class="how-card reveal">
+        <div class="how-number">02</div>
+        <h3 class="how-title">Rent or Buy, You Decide</h3>
+        <p class="how-desc">Need something just for the weekend? Rent it. Found something you love? Buy it. Both options live side by side so you're always seeing your full range of choices.</p>
+      </div>
+      <div class="how-card reveal">
+        <div class="how-number">03</div>
+        <h3 class="how-title">Connect with the Seller</h3>
+        <p class="how-desc">Message sellers directly through the platform. No more sliding into DMs and getting lost. Transactions stay organized, and you always know the status of your order.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-section">
+    <div class="stat-block reveal">
+      <div class="stat-num">50+</div>
+      <div class="stat-label">Campus Closet Accounts</div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="stat-num">1</div>
+      <div class="stat-label">Place to Find Them All</div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="stat-num">0</div>
+      <div class="stat-label">More Tabs to Open</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features-section">
+    <div class="reveal">
+      <p class="section-label">Why RACK</p>
+      <h2 class="section-title">Built for<br>How You<br>Actually Shop</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">✦</div>
+        <h3 class="feature-title">Search That Actually Works</h3>
+        <p class="feature-desc">Size XS in black, under $30, for a date night — done. Our filters understand how you actually think about clothing, not just keyword matching.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">◎</div>
+        <h3 class="feature-title">Campus-Verified Sellers</h3>
+        <p class="feature-desc">Every seller on Reloop is a real student at your university. No catfishing, no shipping scams. Pick up on campus, keep it local, keep it safe.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">⟡</div>
+        <h3 class="feature-title">Occasion-First Browsing</h3>
+        <p class="feature-desc">Browse by what you're going to — formals, game days, recruitment, going out. The platform curates the right looks so you're not starting from scratch.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">◈</div>
+        <h3 class="feature-title">Rent. Return. Repeat.</h3>
+        <p class="feature-desc">Stop buying one-occasion pieces you'll never wear again. Rent for the weekend, return on Monday. Better for your wallet, better for your closet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+
+  <section class="waitlist-section" id="waitlist">
+    <div>
+      <p class="section-label" style="color: var(--accent-dark);">Early Access</p>
+      <h2 class="waitlist-title">Be First<br><em>on Reloop.</em></h2>
+      <p class="waitlist-sub">We're rolling out campus by campus. Get on the waitlist to be first at your school — and help shape what we build.</p>
+    </div>
+    <div>
+      <div class="waitlist-form" id="waitlistForm">
+        <div class="form-row">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" placeholder="Your name" id="nameInput" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">University</label>
+          <input class="form-input" type="text" placeholder="e.g. Auburn University" id="schoolInput" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">University Email</label>
+          <input class="form-input" type="email" placeholder="you@university.edu" id="emailInput" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">I'm joining as a</label>
+          <select class="form-select" id="roleInput">
+            <option value="">Select one</option>
+            <option value="buyer">Buyer — I want to shop & rent</option>
+            <option value="seller">Seller — I have a closet account</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">How did you hear about Reloop?</label>
+          <select class="form-select" id="referralInput">
+            <option value="">Select one</option>
+            <option value="instagram">Instagram</option>
+            <option value="friend">A friend told me</option>
+            <option value="groupchat">Group chat</option>
+            <option value="tiktok">TikTok</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">What's your biggest frustration finding clothes on campus?</label>
+          <input class="form-input" type="text" placeholder="Be honest — this helps us build the right thing" id="painInput" />
+        </div>
+        <p id="formError" style="color:#c0392b; font-size:0.78rem; letter-spacing:0.05em; display:none; margin-top:4px;"></p>
+        <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">Join the Waitlist →</button>
+      </div>
+      <p class="success-msg" id="successMsg">You're on the list. We'll be in touch. ✦</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Re<span>loop</span></div>
+    <div class="footer-copy">© 2025 Reloop. All rights reserved.</div>
+    <div class="footer-auburn">Every Campus. One Closet.</div>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://eyzntnstkegcnwokbzgd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5em50bnN0a2VnY253b2tiemdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDYzMjIsImV4cCI6MjA5MjM4MjMyMn0.A0Y6RdU_BT7NnAUWs52sAgafDHlI1YGsb1R7QjbNzVU';
+
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, .how-card, .feature-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.width = '20px'; cursor.style.height = '20px';
+        ring.style.width = '56px'; ring.style.height = '56px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.width = '12px'; cursor.style.height = '12px';
+        ring.style.width = '36px'; ring.style.height = '36px';
+      });
+    });
+
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    async function handleSubmit() {
+      const name = document.getElementById('nameInput').value.trim();
+      const school = document.getElementById('schoolInput').value.trim();
+      const email = document.getElementById('emailInput').value.trim();
+      const role = document.getElementById('roleInput').value;
+      const referral = document.getElementById('referralInput').value;
+      const pain = document.getElementById('painInput').value.trim();
+      const errorEl = document.getElementById('formError');
+      const btn = document.getElementById('submitBtn');
+
+      errorEl.style.display = 'none';
+
+      if (!name || !school || !email || !role) {
+        errorEl.textContent = 'Please fill out all required fields.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      btn.textContent = 'Joining...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            full_name: name,
+            university: school,
+            email: email,
+            role: role,
+            referral_source: referral || null,
+            biggest_pain: pain || null
+          })
+        });
+
+        if (res.status === 409) {
+          errorEl.textContent = "You're already on the list!";
+          errorEl.style.display = 'block';
+          btn.textContent = 'Join the Waitlist →';
+          btn.disabled = false;
+          return;
+        }
+
+        if (!res.ok) throw new Error('failed');
+
+        document.getElementById('waitlistForm').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+
+      } catch (err) {
+        errorEl.textContent = 'Something went wrong. Please try again.';
+        errorEl.style.display = 'block';
+        btn.textContent = 'Join the Waitlist →';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
